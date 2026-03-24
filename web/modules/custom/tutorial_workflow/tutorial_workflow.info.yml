@@ -1,0 +1,9 @@
+name: Tutorial Workflow
+description: 'Optimiert den Redaktionsprozess für den Inhaltstyp "Tutorial" mit einer SEO-Qualitätscheckliste in der Sidebar.'
+type: module
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:node
+  - drupal:field
+  - drupal:options

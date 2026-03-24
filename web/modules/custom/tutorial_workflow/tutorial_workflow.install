@@ -1,0 +1,112 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the tutorial_workflow module.
+ */
+
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+
+/**
+ * Implements hook_install().
+ *
+ * Erstellt das Checklisten-Feld für den Tutorial-Inhaltstyp,
+ * sofern es noch nicht existiert.
+ */
+function tutorial_workflow_install() {
+  $entity_type = 'node';
+  $bundle = 'tutorial';
+  $field_name = 'field_tutorial_checklist';
+
+  // Die erlaubten Werte für die Checkliste.
+  // Keys sind kurze Maschinennamen, Values die leserlichen Beschriftungen.
+  $allowed_values = [
+    'titel_handlungsaufforderung' => 'Titel: Klare Handlungsaufforderung formuliert (z. B. „Drupal 11 auf Ubuntu installieren“)',
+    'einleitung_ausgefuellt' => 'Einleitung: Beantwortet „Worum geht es?“ und „Was lerne ich danach?“',
+    'hauptbild_hochgeladen' => 'Hauptbild: Aussagekräftiges Bild (min. 1200 × 630 px) hochgeladen',
+    'materialien_ausgefuellt' => 'Benötigte Materialien: Alle Voraussetzungen und Ressourcen aufgelistet',
+    'werkzeuge_ausgefuellt' => 'Benötigte Werkzeuge: Alle Tools und Programme aufgelistet',
+    'lernschritte_ueberschriften' => 'Lernschritte: Jeder Schritt hat eine nummerierte Überschrift',
+    'lernschritte_ausfuehrlich' => 'Lernschritte: Jede Anweisung ist detailliert genug für Anfänger',
+    'code_formatiert' => 'Lernschritte: Alle Terminal-Befehle in Codeblocken formatiert',
+    'weiterfuehrende_links' => 'Passende weiterführende Links: Vertiefende Ressourcen verlinkt',
+    'wichtige_referenzen' => 'Wichtige Referenzen: Offizielle Quellen (z. B. drupal.org) verlinkt',
+  ];
+
+  // 1. Field Storage erstellen, falls es nicht existiert.
+  if (!FieldStorageConfig::loadByName($entity_type, $field_name)) {
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'list_string',
+      'cardinality' => -1, // Unbegrenzt – alle Checkboxen sollen einzeln gespeichert werden.
+      'settings' => [
+        'allowed_values' => $allowed_values,
+      ],
+    ])->save();
+  }
+
+  // 2. Field-Instanz auf dem Bundle erstellen, falls sie nicht existiert.
+  if (!FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
+    FieldConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $bundle,
+      'label' => 'SEO & Qualitäts-Checkliste',
+      // Feld ist NICHT required auf Config-Ebene – die Prüfung übernimmt
+      // der Custom Validation Handler im .module nur beim Veröffentlichen.
+      'required' => FALSE,
+      'description' => 'Hake alle Punkte ab, bevor du dieses Tutorial veröffentlichst.',
+    ])->save();
+  }
+
+  // 3. Formular-Display konfigurieren: als Checkboxen rendern.
+  /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $form_display */
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load("$entity_type.$bundle.default");
+
+  // Fallback: falls kein Default-Display existiert, neu anlegen.
+  if (!$form_display) {
+    $form_display = EntityFormDisplay::create([
+      'targetEntityType' => $entity_type,
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+
+  // Widget auf Checkboxen ("options_buttons") setzen.
+  $form_display->setComponent($field_name, [
+    'type' => 'options_buttons',
+    'weight' => 100,
+    'settings' => [],
+  ])->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Löscht das Checklisten-Feld beim Deinstallieren des Moduls sauber aus
+ * der Datenbank, damit keine Waisen-Konfiguration zurückbleibt.
+ */
+function tutorial_workflow_uninstall() {
+  $entity_type = 'node';
+  $bundle = 'tutorial';
+  $field_name = 'field_tutorial_checklist';
+
+  // Erst die Feld-Instanz auf dem Bundle löschen…
+  $field_config = FieldConfig::loadByName($entity_type, $bundle, $field_name);
+  if ($field_config) {
+    $field_config->delete();
+  }
+
+  // …dann den Field Storage.
+  $field_storage = FieldStorageConfig::loadByName($entity_type, $field_name);
+  if ($field_storage) {
+    $field_storage->delete();
+  }
+}

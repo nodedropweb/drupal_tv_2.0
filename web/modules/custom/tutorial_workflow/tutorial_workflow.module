@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Hauptdatei des tutorial_workflow-Moduls.
+ *
+ * Verschiebt die SEO-Checkliste in die Sidebar des Tutorial-Bearbeitungsformulars
+ * und erzwingt deren vollständige Ausfüllung vor dem Veröffentlichen.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node_form.
+ *
+ * Wird für ALLE Node-Formulare aufgerufen. Wir beschränken die Logik
+ * gezielt auf den Inhaltstyp "tutorial".
+ *
+ * @param array $form
+ *   Das Formular-Array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   Der aktuelle Formular-State.
+ * @param string $form_id
+ *   Die ID des Formulars.
+ */
+function tutorial_workflow_form_node_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $form_state->getFormObject()->getEntity();
+
+  // Nur für den Inhaltstyp "tutorial" ausführen.
+  if ($node->bundle() !== 'tutorial') {
+    return;
+  }
+
+  // Sicherstellen, dass das Checklisten-Feld im Formular vorhanden ist.
+  if (!isset($form['field_tutorial_checklist'])) {
+    return;
+  }
+
+  // 1. Ein neues "Details"-Element als Container für die Sidebar anlegen.
+  //    Durch '#group' => 'advanced' landet es automatisch in der rechten Sidebar.
+  $form['tutorial_seo_check'] = [
+    '#type' => 'details',
+    '#title' => t('SEO & Qualitäts-Check'),
+    '#group' => 'advanced',
+    // Wird defaultmäßig geöffnet angezeigt, wenn Pflichtfelder fehlen.
+    '#open' => TRUE,
+    '#weight' => 50,
+    '#attributes' => [
+      'class' => ['tutorial-seo-check'],
+    ],
+  ];
+
+  // 2. Das Checklisten-Feld in das neue Details-Element verschieben.
+  //    Wir überschreiben '#group', was Drupal anweist, es dort einzufügen.
+  $form['field_tutorial_checklist']['#group'] = 'tutorial_seo_check';
+
+  // 3. Einen Custom-Validierungs-Handler an das Formular anhängen.
+  //    Dieser wird VOR dem Standard-Speichern ausgeführt.
+  $form['#validate'][] = 'tutorial_workflow_node_form_validate';
+}
+
+/**
+ * Custom Validierungs-Handler für das Tutorial-Node-Formular.
+ *
+ * Prüft beim Versuch zu veröffentlichen, ob alle Checklisten-Punkte
+ * abgehakt wurden. Bei einem Entwurf (Status == 0) wird KEIN Fehler geworfen.
+ *
+ * @param array $form
+ *   Das Formular-Array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   Der aktuelle Formular-State.
+ */
+function tutorial_workflow_node_form_validate(array &$form, FormStateInterface $form_state): void {
+  // Den gewählten Status aus dem Formular auslesen.
+  // Das Status-Feld in Drupal heißt "status" und hat den Wert "1" (veröffentlicht)
+  // oder "0" (Entwurf).
+  $status_value = $form_state->getValue(['status', 0, 'value']);
+
+  // Nur validieren, wenn der Node veröffentlicht werden soll.
+  if ((int) $status_value !== 1) {
+    return;
+  }
+
+  // Die aktuell anghakten Werte des Checklisten-Felds auslesen.
+  $checklist_values = $form_state->getValue('field_tutorial_checklist');
+
+  // Die erlaubten Werte aus der Field Storage laden,
+  // um zu wissen wie viele Punkte es insgesamt gibt.
+  $field_storage = \Drupal::entityTypeManager()
+    ->getStorage('field_storage_config')
+    ->load('node.field_tutorial_checklist');
+
+  if (!$field_storage) {
+    // Kein Feld gefunden – Validierung überspringen, um keine falschen Fehler zu erzeugen.
+    return;
+  }
+
+  $allowed_values = $field_storage->getSetting('allowed_values');
+  $total_items = count($allowed_values);
+
+  // Die angehakten Werte bereinigen (leere Einträge entfernen, die Drupal manchmal mitschickt).
+  $checked_values = array_filter($checklist_values ?? [], function ($item) {
+    return !empty($item['value']);
+  });
+
+  $checked_count = count($checked_values);
+
+  // Fehler auslösen, wenn nicht alle Punkte abgehakt wurden.
+  if ($checked_count < $total_items) {
+    $remaining = $total_items - $checked_count;
+    $form_state->setErrorByName(
+      'field_tutorial_checklist',
+      \Drupal::translation()->formatPlural(
+        $remaining,
+        'Du kannst dieses Tutorial noch nicht veröffentlichen. Es fehlt noch 1 Punkt in der SEO & Qualitäts-Checkliste.',
+        'Du kannst dieses Tutorial noch nicht veröffentlichen. Es fehlen noch @count Punkte in der SEO & Qualitäts-Checkliste.',
+      )
+    );
+  }
+}
