@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a07ec1abf6a3c1f6dac442bc854297f9",
+    "content-hash": "a25dfb2fd84589fbdd3a6f6c19971f9a",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3610,6 +3610,52 @@
             }
         },
         {
+            "name": "drupal/estimated_read_time",
+            "version": "1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/estimated_read_time.git",
+                "reference": "1.2.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/estimated_read_time-1.2.1.zip",
+                "reference": "1.2.1",
+                "shasum": "625020fceeceb7d23dbc00db0500cb863d79fca2"
+            },
+            "require": {
+                "drupal/core": "^10.3 || ^11",
+                "mtownsend/read-time": "^2"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "1.2.1",
+                    "datestamp": "1772554017",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Taltavull",
+                    "homepage": "https://www.drupal.org/u/mtalt"
+                }
+            ],
+            "description": "Creates a field that estimates the read time of an entity.",
+            "homepage": "https://drupal.org/project/estimated_read_time",
+            "support": {
+                "source": "https://git.drupalcode.org/project/estimated_read_time",
+                "issues": "https://www.drupal.org/project/issues/estimated_read_time"
+            }
+        },
+        {
             "name": "drupal/field_group",
             "version": "4.0.0",
             "source": {
@@ -5640,6 +5686,81 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/scheduler_content_moderation_integration",
                 "error": "Invalid dependency: \"scheduler\", Could not parse version constraint ~: Invalid version string \"~\""
+            }
+        },
+        {
+            "name": "drupal/schema_metatag",
+            "version": "3.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/schema_metatag.git",
+                "reference": "3.0.4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/schema_metatag-3.0.4.zip",
+                "reference": "3.0.4",
+                "shasum": "bdc9ee4efc6a995e6b0e75a517e65e1355226c95"
+            },
+            "require": {
+                "drupal/core": "^9 || ^10 || ^11",
+                "drupal/metatag": "^2.0",
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "drupal/coder": "^8.3",
+                "drupal/metatag_views": "*",
+                "drupal/schema_article": "*",
+                "drupal/schema_organization": "*",
+                "ergebnis/composer-normalize": "*",
+                "mpyw/phpunit-patch-serializable-comparison": "*",
+                "phpcompatibility/php-compatibility": "^9.3"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "3.0.4",
+                    "datestamp": "1771516335",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "composer-normalize": {
+                    "indent-size": 2,
+                    "indent-style": "space"
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "damienmckenna",
+                    "homepage": "https://www.drupal.org/user/108450"
+                },
+                {
+                    "name": "karens",
+                    "homepage": "https://www.drupal.org/user/45874"
+                },
+                {
+                    "name": "thejimbirch",
+                    "homepage": "https://www.drupal.org/user/2507260"
+                },
+                {
+                    "name": "wells",
+                    "homepage": "https://www.drupal.org/user/2452278"
+                }
+            ],
+            "description": "Metatag implementation of Schema.org structured data (JSON-LD)",
+            "homepage": "https://www.drupal.org/project/schema_metatag",
+            "keywords": [
+                "Drupal"
+            ],
+            "support": {
+                "source": "https://git.drupalcode.org/project/schema_metatag",
+                "issues": "https://www.drupal.org/project/issues/schema_metatag"
             }
         },
         {
@@ -7742,6 +7863,71 @@
                 "source": "https://github.com/mck89/peast/tree/v1.17.5"
             },
             "time": "2026-03-15T10:47:07+00:00"
+        },
+        {
+            "name": "mtownsend/read-time",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mtownsend5512/read-time.git",
+                "reference": "b43f178095383bda3cdf606c8a288bf8cacf537e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mtownsend5512/read-time/zipball/b43f178095383bda3cdf606c8a288bf8cacf537e",
+                "reference": "b43f178095383bda3cdf606c8a288bf8cacf537e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Mtownsend\\ReadTime\\Providers\\ReadTimeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Mtownsend\\ReadTime\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mark Townsend",
+                    "email": "mtownsend5512@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP package to show users how long it takes to read content.",
+            "keywords": [
+                "Minutes",
+                "article",
+                "blog",
+                "content",
+                "medium",
+                "min",
+                "read",
+                "reading",
+                "time"
+            ],
+            "support": {
+                "issues": "https://github.com/mtownsend5512/read-time/issues",
+                "source": "https://github.com/mtownsend5512/read-time/tree/2.0.0"
+            },
+            "time": "2021-01-11T13:46:58+00:00"
         },
         {
             "name": "mtownsend/xml-to-array",
@@ -13805,7 +13991,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "drupal/drupal_cms_site_template_base": 20,
         "drupal/webform": 10
     },
     "prefer-stable": true,
